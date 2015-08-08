@@ -1,12 +1,16 @@
 package pe.apiconz.android.barcodeexample;
 
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,15 +26,21 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
+
+    private static final int WHITE = 0xFFFFFFFF;
+    private static final int BLACK = 0xFF000000;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+//        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
-
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         LinearLayout layout = new LinearLayout(this);
         layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setGravity(Gravity.CENTER_VERTICAL);
-
+        layout.setBackgroundColor(WHITE);
         setContentView(layout);
 
         String barCodeData = "7027661000057422855";
@@ -38,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         Bitmap bitmap = null;
         ImageView imageView = new ImageView(this);
 
-        bitmap = encodeAsBitmap(barCodeData, BarcodeFormat.CODE_128,600,300);
+        bitmap = encodeAsBitmap(barCodeData, BarcodeFormat.CODE_128, 600, 300);
         imageView.setImageBitmap(bitmap);
         layout.addView(imageView);
 
@@ -51,29 +61,68 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void setScreenBrightnessMax() {
+        WindowManager.LayoutParams settings = getWindow().getAttributes();
+        settings.screenBrightness = 1;
+        getWindow().setAttributes(settings);
+    }
 
-    private static final int WHITE = 0xFFFFFFFF;
-    private static final int BLACK = 0xFF000000;
+    private void restoreScreenBrightness() {
+        WindowManager.LayoutParams settings = getWindow().getAttributes();
+        settings.screenBrightness = -1;
+        getWindow().setAttributes(settings);
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        setScreenBrightnessMax();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        restoreScreenBrightness();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setScreenBrightnessMax();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        restoreScreenBrightness();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        restoreScreenBrightness();
+    }
 
     private Bitmap encodeAsBitmap(String barCodeData, BarcodeFormat format, int imageWidth, int imageHeight) {
         String contentsToEncode = barCodeData;
-        if(contentsToEncode == null){
+        if (contentsToEncode == null) {
             return null;
         }
 
         Map<EncodeHintType, Object> hints = null;
         String encoding = guessAppropiateEncoding(contentsToEncode);
 
-        if(encoding != null){
+        if (encoding != null) {
             hints = new EnumMap<EncodeHintType, Object>(EncodeHintType.class);
             hints.put(EncodeHintType.CHARACTER_SET, encoding);
         }
 
         MultiFormatWriter writer = new MultiFormatWriter();
         BitMatrix result = null;
-        try{
+        try {
             result = writer.encode(contentsToEncode, format, imageWidth, imageHeight, hints);
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return null;
         } catch (WriterException e) {
             e.printStackTrace();
@@ -82,10 +131,10 @@ public class MainActivity extends AppCompatActivity {
         int width = result.getWidth();
         int height = result.getHeight();
         int[] pixels = new int[width * height];
-        for(int y=0; y< height; y++){
+        for (int y = 0; y < height; y++) {
             int offset = y * width;
-            for(int x = 0; x < width; x++){
-                pixels[offset + x] = result.get(x,y) ? BLACK : WHITE;
+            for (int x = 0; x < width; x++) {
+                pixels[offset + x] = result.get(x, y) ? BLACK : WHITE;
             }
         }
 
