@@ -1,5 +1,6 @@
 package pe.apiconz.android.barcodeexample;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.provider.Settings;
@@ -43,7 +44,10 @@ public class MainActivity extends AppCompatActivity {
         layout.setBackgroundColor(WHITE);
         setContentView(layout);
 
-        String barCodeData = "7027661000057422855";
+        Intent intent = this.getIntent();
+        String barCodeData = intent.getStringExtra(Intent.EXTRA_TEXT);
+
+        //String barCodeData = "7027661000057422855";
 
         Bitmap bitmap = null;
         ImageView imageView = new ImageView(this);
