@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -33,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-//        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -42,6 +43,12 @@ public class MainActivity extends AppCompatActivity {
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setGravity(Gravity.CENTER_VERTICAL);
         layout.setBackgroundColor(WHITE);
+
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+
         setContentView(layout);
 
         Intent intent = this.getIntent();
@@ -52,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         Bitmap bitmap = null;
         ImageView imageView = new ImageView(this);
 
-        bitmap = encodeAsBitmap(barCodeData, BarcodeFormat.CODE_128, 600, 300);
+        bitmap = encodeAsBitmap(barCodeData, BarcodeFormat.CODE_128, 800, 400);
         imageView.setImageBitmap(bitmap);
         layout.addView(imageView);
 
